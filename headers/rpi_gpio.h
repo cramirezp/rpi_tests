@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <bcm2835.h>
 
+
 class Rpi_GPIO{
 private:
 	// Pin access
@@ -23,5 +24,6 @@ public:
 	bool pin_exists(uint8_t);
 
 	bool add_sensor(uint8_t pin_number);
-	bool add_sensor<N>(std::array<uint8_t, N> pin_number);
+	template<uint8_t N>
+	bool add_sensor(std::array<uint8_t, N> pin_number);
 };

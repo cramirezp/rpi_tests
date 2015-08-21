@@ -70,8 +70,8 @@ bool Rpi_GPIO::add_sensor(uint8_t pin_number){
 
 	return true;
 }
-
-bool Rpi_GPIO::add_sensor<N>(std::array<uint8_t, N> pin_number){
+template<uint8_t N>
+bool Rpi_GPIO::add_sensor(std::array<uint8_t, N> pin_number){
 
 	for(auto i = std::begin(pin_number); i!=std::end(pin_number); ++i){
 		if(!pin_exists(*i))
