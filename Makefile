@@ -5,24 +5,26 @@ IDIR = headers
 SDIR = src
 ODIR = obj
 BDIR = bin
+LDIR = lib
 
 
 CC     = arm-linux-gnueabihf-g++
 CFLAGS = -Wall -std=c++11 -I$(IDIR)/ -I/usr/local/include
 LFLAGS = -L/usr/local/lib
 LIBS   = -lbcm2835
-
+AR     = arm-linux-gnueabihf-ar
+AFLAGS = rvs
 
 ##########################################################################
 # Default current action
 
-all: simple_reading load_rpi
+all: librpi_gpio.a
 
 load_rpi: load_rpi_simple_reading
 
 
 ##########################################################################
-# Objetive files compilation
+# Object files compilation
 
 $(ODIR)/%.o:  $(SDIR)/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -48,13 +50,24 @@ load_rpi_simple_reading:
 simple_reading: $(ODIR)/simple_reading.o
 	$(CC) $(LFLAGS) -o $(BDIR)/$@ $^ $(LIBS)
 
+# Rpi_GPIO class static library #################
+
+load_rpi_rpi_gpio_lib:
+	scp $(LDIR)/librpi_gpio.a root@192.168.0.14:/root/tests/
+
+librpi_gpio.a: $(ODIR)/rpi_gpio.o
+	$(AR) $(AFLAGS) $(LDIR)/$@ $^
+
 ##########################################################################
 # CLEANING
 
-clean: clean_obj clean_bin
+clean: clean_obj clean_bin clean_lib
 
 clean_obj:
 	rm -f $(ODIR)/*.o
 
 clean_bin:
 	rm -f $(BDIR)/*
+
+clean_lib:
+	rm -f $(LDIR)/*
