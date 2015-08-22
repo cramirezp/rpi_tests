@@ -1,11 +1,11 @@
 ##########################################################################
 # BUILDING CONFIGURATION
 
-IDIR = headers
-SDIR = src
-ODIR = obj
-BDIR = bin
-LDIR = lib
+IDIR = ./headers
+SDIR = ./src
+ODIR = ./obj
+BDIR = ./bin
+LDIR = ./lib
 
 
 CC     = arm-linux-gnueabihf-g++
@@ -18,7 +18,7 @@ AFLAGS = rvs
 ##########################################################################
 # Default current action
 
-all: librpi_gpio.a
+all: librpi_gpio.a sharp_gp2y load_rpi_sharp_gp2y
 
 load_rpi: load_rpi_simple_reading
 
@@ -55,8 +55,16 @@ simple_reading: $(ODIR)/simple_reading.o
 load_rpi_rpi_gpio_lib:
 	scp $(LDIR)/librpi_gpio.a root@192.168.0.14:/root/tests/
 
-librpi_gpio.a: $(ODIR)/rpi_gpio.o
+librpi_gpio.a: $(ODIR)/rpi_gpio.o $(ODIR)/rpi_gpio_sensor.o
 	$(AR) $(AFLAGS) $(LDIR)/$@ $^
+
+# Sharp_GP2Y tests ##############################
+
+load_rpi_sharp_gp2y:
+	scp $(BDIR)/sharp_gp2y root@192.168.0.14:/root/tests/
+
+sharp_gp2y: $(ODIR)/sharp_gp2y.o
+	$(CC) $(LFLAGS) -o $(BDIR)/$@ $^ $(LIBS) -L$(LDIR) -lrpi_gpio
 
 ##########################################################################
 # CLEANING
