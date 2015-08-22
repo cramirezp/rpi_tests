@@ -39,6 +39,8 @@ Rpi_GPIO::Rpi_GPIO(){
 		{pin[24], false},
 		{pin[26], false}
 		};
+	sensor_pins_list = {};
+	sensor_list  = {};
 
 	Rpi_GPIO::init();
 }
@@ -54,11 +56,15 @@ bool Rpi_GPIO::close(){
 	return bcm2835_close() == 1;
 }
 
-bool Rpi_GPIO::pin_exists(uint8_t pin_number){
+bool Rpi_GPIO::pin_exists(int pin_number){
 	return pin.find(pin_number) != pin.end();
 }
 
-bool Rpi_GPIO::add_sensor(uint8_t pin_number){
+bool Rpi_GPIO::sensor_exists(std::string tag){
+	return sensor_list.find(tag) != sensor_list.end();
+}
+
+bool Rpi_GPIO::add_sensor(std::string tag, Rpi_GPIO_sensor *sensor, uint8_t pin_number){
 	
 	if(!pin_exists(pin_number))
 		return false;
@@ -66,22 +72,43 @@ bool Rpi_GPIO::add_sensor(uint8_t pin_number){
 	if(pin_is_used[pin_number])
 		return false;
 
+	if(sensor_exists(tag))
+		return false;
+
 	pin_is_used[pin_number] = true;
+	sensor_pins_list[tag] = {pin_number};
+	sensor_list[tag] = sensor;
 
 	return true;
 }
-template<uint8_t N>
-bool Rpi_GPIO::add_sensor(std::array<uint8_t, N> pin_number){
 
-	for(auto i = std::begin(pin_number); i!=std::end(pin_number); ++i){
+bool Rpi_GPIO::add_sensor(std::string tag, Rpi_GPIO_sensor *sensor, std::vector<uint8_t> pin_numbers){
+
+	if(sensor_exists(tag))
+		return false;
+
+	for(auto i = std::begin(pin_numbers); i!=std::end(pin_numbers); ++i){
 		if(!pin_exists(*i))
 			return false;
 		if(pin_is_used[*i])
 			return false;
 	}
 
-	for(auto i = std::begin(pin_number); i!=std::end(pin_number); ++i)
+	for(auto i = std::begin(pin_numbers); i!=std::end(pin_numbers); ++i){
+		bcm2835_gpio_fsel(pin[*i], BCM2835_GPIO_FSEL_INPT);
+		bcm2835_gpio_set_pud(pin[*i], BCM2835_GPIO_PUD_DOWN);
+
 		pin_is_used[*i] = true;
+	}
+	sensor_pins_list[tag] = pin_numbers;
+	sensor_list[tag] = sensor;
 
 	return true;
+}
+
+void Rpi_GPIO::tick(){
+	for(auto i = sensor_list.begin(); i!=sensor_list.end(); ++i)
+		(i->second)->tick();
+
+	bcm2835_delay(1000);		// [ms]
 }
