@@ -15,6 +15,10 @@ LIBS   = -lbcm2835
 AR     = arm-linux-gnueabihf-ar
 AFLAGS = rvs
 
+IP    = 192.168.0.14
+DUSER = root
+DDEST = /root/tests
+
 ##########################################################################
 # Default current action
 
@@ -37,7 +41,7 @@ $(ODIR)/%.o:  $(SDIR)/%.cpp
 
 #load_rpi_hola_mundo: hola_mundo
 load_rpi_hola_mundo:
-	scp $(BDIR)/hola_mundo root@192.168.0.14:/root/tests/
+	scp $(BDIR)/hola_mundo $(DUSER)@$(IP):$(DDEST)
 
 hola_mundo: $(ODIR)/hola_mundo.o
 	$(CC) -o $(BDIR)/$@ $^
@@ -45,7 +49,7 @@ hola_mundo: $(ODIR)/hola_mundo.o
 # GPIO simple reading ###########################
 
 load_rpi_simple_reading:
-	scp $(BDIR)/simple_reading root@192.168.0.14:/root/tests/
+	scp $(BDIR)/simple_reading $(DUSER)@$(IP):$(DDEST)
 
 simple_reading: $(ODIR)/simple_reading.o
 	$(CC) $(LFLAGS) -o $(BDIR)/$@ $^ $(LIBS)
@@ -53,7 +57,7 @@ simple_reading: $(ODIR)/simple_reading.o
 # Rpi_GPIO class static library #################
 
 load_rpi_rpi_gpio_lib:
-	scp $(LDIR)/librpi_gpio.a root@192.168.0.14:/root/tests/
+	scp $(LDIR)/librpi_gpio.a $(DUSER)@$(IP):$(DDEST)
 
 librpi_gpio.a: $(ODIR)/rpi_gpio.o $(ODIR)/rpi_gpio_sensor.o
 	$(AR) $(AFLAGS) $(LDIR)/$@ $^
@@ -61,7 +65,7 @@ librpi_gpio.a: $(ODIR)/rpi_gpio.o $(ODIR)/rpi_gpio_sensor.o
 # Sharp_GP2Y tests ##############################
 
 load_rpi_sharp_gp2y:
-	scp $(BDIR)/sharp_gp2y root@192.168.0.14:/root/tests/
+	scp $(BDIR)/sharp_gp2y $(DUSER)@$(IP):$(DDEST)
 
 sharp_gp2y: $(ODIR)/sharp_gp2y.o
 	$(CC) $(LFLAGS) -o $(BDIR)/$@ $^ $(LIBS) -L$(LDIR) -lrpi_gpio
