@@ -22,7 +22,7 @@ DDEST = /root/tests
 ##########################################################################
 # Default current action
 
-all: librpi_gpio.a sharp_gp2y load_rpi_sharp_gp2y
+all: librpi_gpio.a pwm_hs422 load_rpi_pwm_hs422
 
 load_rpi: load_rpi_simple_reading
 
@@ -68,6 +68,22 @@ load_rpi_sharp_gp2y:
 	scp $(BDIR)/sharp_gp2y $(DUSER)@$(IP):$(DDEST)
 
 sharp_gp2y: $(ODIR)/sharp_gp2y.o
+	$(CC) $(LFLAGS) -o $(BDIR)/$@ $^ $(LIBS) -L$(LDIR) -lrpi_gpio
+
+# Period Reader #################################
+
+load_rpi_period_sensor:
+	scp $(BDIR)/period_sensor $(DUSER)@$(IP):$(DDEST)
+
+period_sensor: $(ODIR)/period_sensor.o
+	$(CC) $(LFLAGS) -o $(BDIR)/$@ $^ $(LIBS) -L$(LDIR) -lrpi_gpio
+
+# Basic PWM #####################################
+
+load_rpi_pwm_hs422:
+	scp $(BDIR)/pwm_hs422 $(DUSER)@$(IP):$(DDEST)
+
+pwm_hs422: $(ODIR)/pwm_hs422.o
 	$(CC) $(LFLAGS) -o $(BDIR)/$@ $^ $(LIBS) -L$(LDIR) -lrpi_gpio
 
 ##########################################################################
